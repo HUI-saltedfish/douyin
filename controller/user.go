@@ -97,7 +97,7 @@ var usersLoginInfo = map[string]User{
 // 	}
 // }
 
-var jwtKey = []byte("douyin")
+var JwtKey = []byte("douyin")
 
 type UserLoginResponse struct {
 	Response
@@ -157,7 +157,7 @@ func Register(c *gin.Context) {
 		// Declare the token with the algorithm used for signing, and the claims
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		// Create the JWT string
-		tokenString, err := token.SignedString(jwtKey)
+		tokenString, err := token.SignedString(JwtKey)
 		if err != nil {
 			// If there is an error in creating the JWT return an internal server error
 			c.JSON(http.StatusOK, UserLoginResponse{
@@ -219,7 +219,7 @@ func Login(c *gin.Context) {
 	// Declare the token with the algorithm used for signing, and the claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Create the JWT string
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(JwtKey)
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
 		c.JSON(http.StatusOK, UserLoginResponse{
@@ -236,7 +236,6 @@ func Login(c *gin.Context) {
 }
 
 func UserInfo(c *gin.Context) {
-	token := c.Query("token")
 	userId := c.Query("user_id")
 
 	// get user by user_id
@@ -256,58 +255,8 @@ func UserInfo(c *gin.Context) {
 		})
 	}
 
-	// get user by token
-	// Parse the JWT string and store the result in `claims`.
-	claims := &Claims{}
-
-	// Parse the JWT string and store the result in `claims`.
-	// Note that we are passing the key in this method as well. This method will return an error
-	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
-	// or if the signature does not match
-	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+	c.JSON(http.StatusOK, UserResponse{
+		Response: Response{StatusCode: 0},
+		User:     *user,
 	})
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			c.JSON(http.StatusOK, Response{
-				StatusCode: 1,
-				StatusMsg:  "Unauthorized access",
-			})
-			return
-		}else if err == jwt.ErrTokenExpired {
-			c.JSON(http.StatusOK, Response{
-				StatusCode: 1,
-				StatusMsg:  "Token expired",
-			})}else if err == jwt.ErrInvalidKey {
-				c.JSON(http.StatusOK, Response{
-					StatusCode: 1,
-					StatusMsg:  "Invalid key",
-				})
-			}
-		c.JSON(http.StatusOK, Response{
-			StatusCode: 1,
-			StatusMsg:  err.Error(),
-		})
-		return
-	}
-	if !tkn.Valid {
-		c.JSON(http.StatusOK, Response{
-			StatusCode: 1,
-			StatusMsg:  "Unauthorized access",
-		})
-		return
-	}
-
-	if claims.Username != user.Name {
-		c.JSON(http.StatusOK, Response{
-			StatusCode: 1,
-			StatusMsg:  "Unauthorized access",
-		})
-		return
-	} else {
-		c.JSON(http.StatusOK, UserResponse{
-			Response: Response{StatusCode: 0},
-			User:     *user,
-		})
-	}
 }

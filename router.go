@@ -1,8 +1,11 @@
 package main
 
 import (
+	"net/http"
 	"simple-demo/controller"
+
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func initRouter(r *gin.Engine) {
@@ -13,7 +16,7 @@ func initRouter(r *gin.Engine) {
 
 	// basic apis
 	apiRouter.GET("/feed/", controller.Feed)
-	apiRouter.GET("/user/", controller.UserInfo)
+	apiRouter.GET("/user/", TokenAuth(), controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
 	apiRouter.POST("/publish/action/", controller.Publish)
@@ -32,4 +35,53 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/relation/friend/list/", controller.FriendList)
 	apiRouter.GET("/message/chat/", controller.MessageChat)
 	apiRouter.POST("/message/action/", controller.MessageAction)
+}
+
+func TokenAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.Query("token")
+		// get user by token
+		// Parse the JWT string and store the result in `claims`.
+		claims := &controller.Claims{}
+
+		// Parse the JWT string and store the result in `claims`.
+		// Note that we are passing the key in this method as well. This method will return an error
+		// if the token is invalid (if it has expired according to the expiry time we set on sign in),
+		// or if the signature does not match
+		tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+			return controller.JwtKey, nil
+		})
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				c.JSON(http.StatusOK, controller.Response{
+					StatusCode: 1,
+					StatusMsg:  "Unauthorized access",
+				})
+				return
+			} else if err == jwt.ErrTokenExpired {
+				c.JSON(http.StatusOK, controller.Response{
+					StatusCode: 1,
+					StatusMsg:  "Token expired",
+				})
+			} else if err == jwt.ErrInvalidKey {
+				c.JSON(http.StatusOK, controller.Response{
+					StatusCode: 1,
+					StatusMsg:  "Invalid key",
+				})
+			}
+			c.JSON(http.StatusOK, controller.Response{
+				StatusCode: 1,
+				StatusMsg:  err.Error(),
+			})
+			return
+		}
+		if !tkn.Valid {
+			c.JSON(http.StatusOK, controller.Response{
+				StatusCode: 1,
+				StatusMsg:  "Unauthorized access",
+			})
+			return
+		}
+		c.Next()
+	}
 }
