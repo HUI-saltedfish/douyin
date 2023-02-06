@@ -107,7 +107,7 @@ type UserLoginResponse struct {
 
 type UserResponse struct {
 	Response
-	User User `json:"user"`
+	User model.User `json:"user"`
 }
 
 type Credentials struct {
@@ -296,10 +296,9 @@ func UserInfo(c *gin.Context) {
 		})
 		return
 	} else {
-		c.JSON(http.StatusOK, UserLoginResponse{
+		c.JSON(http.StatusOK, UserResponse{
 			Response: Response{StatusCode: 0},
-			UserId:   int64(user.ID),
-			Token:    token,
+			User:     *user,
 		})
 	}
 }
