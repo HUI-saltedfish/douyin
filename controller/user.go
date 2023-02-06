@@ -274,10 +274,19 @@ func UserInfo(c *gin.Context) {
 				StatusMsg:  "Unauthorized access",
 			})
 			return
-		}
+		}else if err == jwt.ErrTokenExpired {
+			c.JSON(http.StatusOK, Response{
+				StatusCode: 1,
+				StatusMsg:  "Token expired",
+			})}else if err == jwt.ErrInvalidKey {
+				c.JSON(http.StatusOK, Response{
+					StatusCode: 1,
+					StatusMsg:  "Invalid key",
+				})
+			}
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
-			StatusMsg:  "Bad request",
+			StatusMsg:  err.Error(),
 		})
 		return
 	}
