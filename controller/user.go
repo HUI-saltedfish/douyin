@@ -269,20 +269,20 @@ func UserInfo(c *gin.Context) {
 	})
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			c.JSON(http.StatusUnauthorized, Response{
+			c.JSON(http.StatusOK, Response{
 				StatusCode: 1,
 				StatusMsg:  "Unauthorized access",
 			})
 			return
 		}
-		c.JSON(http.StatusBadRequest, Response{
+		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
 			StatusMsg:  "Bad request",
 		})
 		return
 	}
 	if !tkn.Valid {
-		c.JSON(http.StatusUnauthorized, Response{
+		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
 			StatusMsg:  "Unauthorized access",
 		})
@@ -290,7 +290,7 @@ func UserInfo(c *gin.Context) {
 	}
 
 	if claims.Username != user.Name {
-		c.JSON(http.StatusUnauthorized, Response{
+		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
 			StatusMsg:  "Unauthorized access",
 		})
