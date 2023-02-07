@@ -144,7 +144,7 @@ func Register(c *gin.Context) {
 
 		// Declare the expiration time of the token
 		// here, we have kept it as 5 minutes
-		expirationTime := time.Now().Add(5 * time.Minute)
+		expirationTime := time.Now().Add(1 * time.Hour)
 		// Create the JWT claims, which includes the username and expiry time
 		claims := &Claims{
 			Username: creds.Username,
@@ -206,7 +206,7 @@ func Login(c *gin.Context) {
 
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(1 * time.Hour)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: creds.Username,

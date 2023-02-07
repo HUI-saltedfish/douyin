@@ -11,7 +11,7 @@ var DB *gorm.DB
 
 func InitDB() (*gorm.DB, error) {
 	var err error
-	dsn := "douyin:123456@tcp(114.116.80.86:3306)/douyin?charset=utf8&parseTime=True&loc=Local"
+	dsn := "root:123456@tcp(www.huilearn.work:3306)/test?charset=utf8&parseTime=True&loc=Local"
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err

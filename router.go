@@ -19,8 +19,8 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/user/", TokenAuth(), controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
-	apiRouter.POST("/publish/action/", controller.Publish)
-	apiRouter.GET("/publish/list/", controller.PublishList)
+	apiRouter.POST("/publish/action/", TokenAuth(), controller.Publish)
+	apiRouter.GET("/publish/list/", TokenAuth(), controller.PublishList)
 
 	// extra apis - I
 	apiRouter.POST("/favorite/action/", controller.FavoriteAction)
@@ -39,7 +39,23 @@ func initRouter(r *gin.Engine) {
 
 func TokenAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Query("token")
+		var token string
+		token1, ok1 := c.GetQuery("token")
+		token2, ok2 := c.GetPostForm("token")
+		if !ok1 && !ok2 {
+			c.JSON(http.StatusOK, controller.Response{
+				StatusCode: 1,
+				StatusMsg:  "Token is inValid",
+			})
+			// c.Redirect(http.StatusFound, "/douyin/user/login/")
+			// c.Abort()
+			return
+		}
+		if ok1 {
+			token = token1
+		} else {
+			token = token2
+		}
 		// get user by token
 		// Parse the JWT string and store the result in `claims`.
 		claims := &controller.Claims{}
@@ -57,7 +73,7 @@ func TokenAuth() gin.HandlerFunc {
 					StatusCode: 1,
 					StatusMsg:  "Unauthorized access",
 				})
-				return
+
 			} else if err == jwt.ErrTokenExpired {
 				c.JSON(http.StatusOK, controller.Response{
 					StatusCode: 1,
@@ -73,6 +89,7 @@ func TokenAuth() gin.HandlerFunc {
 				StatusCode: 1,
 				StatusMsg:  err.Error(),
 			})
+			// c.Redirect(http.StatusFound, "/douyin/user/login/")
 			return
 		}
 		if !tkn.Valid {
@@ -80,8 +97,10 @@ func TokenAuth() gin.HandlerFunc {
 				StatusCode: 1,
 				StatusMsg:  "Unauthorized access",
 			})
+			// c.Redirect(http.StatusFound, "/douyin/user/login/")
 			return
 		}
+		c.Set("username", claims.Username)
 		c.Next()
 	}
 }

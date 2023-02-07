@@ -42,3 +42,10 @@ func GetUserById(id int) (*User, error) {
 	err := db.Where("id = ?", id).First(&user).Error
 	return user, err
 }
+
+func GetVideosByUserId(id int) ([]Video, error) {
+	var videos []Video
+	db, _ := GetDB()
+	err := db.Where("author_id = ?", id).Find(&videos).Error
+	return videos, err
+}
