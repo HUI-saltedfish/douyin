@@ -14,14 +14,14 @@ func InitDB() (*gorm.DB, error) {
 	dsn := "root:123456@tcp(www.huilearn.work:3306)/test?charset=utf8&parseTime=True&loc=Local"
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	// delete table
-	// DB.Migrator().DropTable(&User{}, &Video{}, &Comment{})
-
-	// AutoMigrate
-	DB.AutoMigrate(&User{}, &Video{}, &Comment{})
+	// AutoMigrate if nessacary
+	err = DB.Find(&User{}, &Video{}, &Comment{}).Error
+	if err != nil {
+		DB.AutoMigrate(&User{}, &Video{}, &Comment{})
+	}
 
 	return DB, nil
 }
