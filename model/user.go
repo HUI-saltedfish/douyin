@@ -3,7 +3,7 @@ package model
 import "gorm.io/gorm"
 
 type User struct {
-	gorm.Model
+	gorm.Model                 
 	Name            string    `gorm:"type:varchar(20);not null" json:"name,omitempty"`
 	Password        string    `gorm:"type:varchar(20);not null"`
 	Follow_count    int       `gorm:"type:int;not null;default:0" json:"follow_count,omitempty"`
@@ -41,11 +41,4 @@ func GetUserById(id int) (*User, error) {
 	db, _ := GetDB()
 	err := db.Where("id = ?", id).First(&user).Error
 	return user, err
-}
-
-func GetVideosByUserId(id int) ([]Video, error) {
-	var videos []Video
-	db, _ := GetDB()
-	err := db.Where("author_id = ?", id).Find(&videos).Error
-	return videos, err
 }

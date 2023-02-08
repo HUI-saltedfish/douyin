@@ -18,10 +18,13 @@ func InitDB() (*gorm.DB, error) {
 	}
 
 	// AutoMigrate if nessacary
-	err = DB.Find(&User{}, &Video{}, &Comment{}).Error
+	// err = DB.Find(&User{}, &Video{}, &Comment{}).Error
+	// if err != nil {
+	err =  DB.AutoMigrate(&User{}, &Video{}, &Comment{})
 	if err != nil {
-		DB.AutoMigrate(&User{}, &Video{}, &Comment{})
+		panic(err)
 	}
+	// }
 
 	return DB, nil
 }

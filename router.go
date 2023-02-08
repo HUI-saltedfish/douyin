@@ -15,7 +15,7 @@ func initRouter(r *gin.Engine) {
 	apiRouter := r.Group("/douyin")
 
 	// basic apis
-	apiRouter.GET("/feed/", controller.Feed)
+	apiRouter.GET("/feed/", TokenAuth(), controller.Feed)
 	apiRouter.GET("/user/", TokenAuth(), controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/login/", controller.Login)
@@ -23,10 +23,10 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/publish/list/", TokenAuth(), controller.PublishList)
 
 	// extra apis - I
-	apiRouter.POST("/favorite/action/", controller.FavoriteAction)
-	apiRouter.GET("/favorite/list/", controller.FavoriteList)
-	apiRouter.POST("/comment/action/", controller.CommentAction)
-	apiRouter.GET("/comment/list/", controller.CommentList)
+	apiRouter.POST("/favorite/action/", TokenAuth(), controller.FavoriteAction)
+	apiRouter.GET("/favorite/list/", TokenAuth(), controller.FavoriteList)
+	apiRouter.POST("/comment/action/", TokenAuth(), controller.CommentAction)
+	apiRouter.GET("/comment/list/", TokenAuth(), controller.CommentList)
 
 	// extra apis - II
 	apiRouter.POST("/relation/action/", controller.RelationAction)
@@ -48,7 +48,7 @@ func TokenAuth() gin.HandlerFunc {
 				StatusMsg:  "Token is inValid",
 			})
 			// c.Redirect(http.StatusFound, "/douyin/user/login/")
-			// c.Abort()
+			c.Abort()
 			return
 		}
 		if ok1 {
@@ -84,12 +84,14 @@ func TokenAuth() gin.HandlerFunc {
 					StatusCode: 1,
 					StatusMsg:  "Invalid key",
 				})
+			} else {
+				c.JSON(http.StatusOK, controller.Response{
+					StatusCode: 1,
+					StatusMsg:  err.Error(),
+				})
 			}
-			c.JSON(http.StatusOK, controller.Response{
-				StatusCode: 1,
-				StatusMsg:  err.Error(),
-			})
 			// c.Redirect(http.StatusFound, "/douyin/user/login/")
+			c.Abort()
 			return
 		}
 		if !tkn.Valid {
@@ -98,6 +100,7 @@ func TokenAuth() gin.HandlerFunc {
 				StatusMsg:  "Unauthorized access",
 			})
 			// c.Redirect(http.StatusFound, "/douyin/user/login/")
+			c.Abort()
 			return
 		}
 		c.Set("username", claims.Username)

@@ -20,9 +20,25 @@ func Feed(c *gin.Context) {
 	// 	VideoList: DemoVideos,
 	// 	NextTime:  time.Now().Unix(),
 	// })
+	var err error
+	username, ok := c.Get("username")
+	if !ok {
+		c.JSON(http.StatusOK, FeedResponse{
+			Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
+		})
+		return
+	}
+
+	user, err := model.GetUserByName(username.(string))
+	if err != nil {
+		c.JSON(http.StatusOK, FeedResponse{
+			Response: Response{StatusCode: 1, StatusMsg: "User doesn't exist"},
+		})
+		return
+	}
+
 	var max_videos int = 30
 	var videoList []model.Video
-	var err error
 	if videoList, err = model.GetVideoOrderByTime(); err != nil {
 		c.JSON(http.StatusOK, FeedResponse{
 			Response: Response{StatusCode: 1, StatusMsg: err.Error()},
@@ -32,6 +48,11 @@ func Feed(c *gin.Context) {
 
 	if len(videoList) > max_videos {
 		videoList = videoList[:max_videos]
+	}
+
+	// update video's is_favorite field
+	for i := 0; i < len(videoList); i++ {
+		videoList[i].Is_favorite = model.IsFavoriteVideo(user, &videoList[i])
 	}
 
 	next_time := videoList[len(videoList)-1].CreatedAt.Unix()

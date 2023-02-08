@@ -125,7 +125,8 @@ func PublishList(c *gin.Context) {
 		})
 		return
 	}
-	videos, err := model.GetVideosByUserId(int(user.ID))
+
+	videos, err := model.GetVideosByUser(user)
 	if err != nil {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 1,
@@ -133,6 +134,12 @@ func PublishList(c *gin.Context) {
 		})
 		return
 	}
+
+	// update video's is_favorite field
+	for i := 0; i < len(videos); i++ {
+		videos[i].Is_favorite = model.IsFavoriteVideo(user, &videos[i])
+	}
+
 	c.JSON(http.StatusOK, VideoListResponse{
 		Response: Response{
 			StatusCode: 0,
