@@ -4,12 +4,12 @@ import "gorm.io/gorm"
 
 type Comment struct {
 	gorm.Model
-	CommentId         int64  `json:"id,omitempty"`
+	CommentId  int64  `gorm:"-" json:"id,omitempty"`
 	Content    string `gorm:"type:text;not null" json:"content,omitempty"`
 	CreateDate string `gorm:"type:varchar(20);not null" json:"create_date,omitempty"`
-	User       User   `gorm:"foreignKey:UserID" json:"user"`
+	User       User   `gorm:"-" json:"user"`
 	UserID     uint   `gorm:"not null"`
-	V          Video  `gorm:"foreignKey:VideoID"`
+	V          Video  `gorm:"-" json:"video"`
 	VideoID    uint   `gorm:"not null"`
 }
 
@@ -40,7 +40,7 @@ func GetCommentById(id int64) (*Comment, error) {
 
 func DeleteComment(comment *Comment) error {
 	db, _ := GetDB()
-	err :=  db.Delete(comment).Error
+	err := db.Delete(comment).Error
 	if err != nil {
 		return err
 	}

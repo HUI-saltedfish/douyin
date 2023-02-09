@@ -7,7 +7,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	DB   *gorm.DB
+	once sync.Once
+)
 
 func InitDB() (*gorm.DB, error) {
 	var err error
@@ -18,19 +21,18 @@ func InitDB() (*gorm.DB, error) {
 	}
 
 	// AutoMigrate if nessacary
-	// err = DB.Find(&User{}, &Video{}, &Comment{}).Error
-	// if err != nil {
-	err =  DB.AutoMigrate(&User{}, &Video{}, &Comment{})
+	err = DB.Find(&User{}, &Video{}, &Comment{}).Error
 	if err != nil {
-		panic(err)
+		err = DB.AutoMigrate(&User{}, &Video{}, &Comment{})
+		if err != nil {
+			panic(err)
+		}
 	}
-	// }
 
 	return DB, nil
 }
 
 func GetDB() (*gorm.DB, error) {
-	var once sync.Once
 	once.Do(func() {
 		_, err := InitDB()
 		if err != nil {

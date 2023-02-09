@@ -3,7 +3,8 @@ package model
 import "gorm.io/gorm"
 
 type User struct {
-	gorm.Model                 
+	gorm.Model
+	UserID          int       `gorm:"-" json:"id,omitempty"`
 	Name            string    `gorm:"type:varchar(20);not null" json:"name,omitempty"`
 	Password        string    `gorm:"type:varchar(20);not null"`
 	Follow_count    int       `gorm:"type:int;not null;default:0" json:"follow_count,omitempty"`
@@ -20,6 +21,13 @@ func GetUserByName(name string) (*User, error) {
 	var user *User
 	db, _ := GetDB()
 	err := db.Where("name = ?", name).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// update userId by ID
+	user.UserID = int(user.ID)
+
 	return user, err
 }
 
@@ -27,6 +35,12 @@ func GetUserByNameAndPassword(name string, password string) (*User, error) {
 	var user *User
 	db, _ := GetDB()
 	err := db.Where("name = ? AND password = ?", name, password).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// update userId by ID
+	user.UserID = int(user.ID)
 	return user, err
 }
 
@@ -40,5 +54,11 @@ func GetUserById(id int) (*User, error) {
 	var user *User
 	db, _ := GetDB()
 	err := db.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// update userId by ID
+	user.UserID = int(user.ID)
 	return user, err
 }

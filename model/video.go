@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Video struct {
 	gorm.Model
-	VideoId       int64     `json:"id,omitempty" gorm:"default:0"`
-	Author        User      `json:"author"`
+	VideoId       int64     `json:"id,omitempty" gorm:"-"`
+	Author        User      `gorm:"-" json:"author"`
 	AuthorID      uint      `gorm:"index"`
 	PlayUrl       string    `json:"play_url,omitempty"`
 	CoverUrl      string    `json:"cover_url,omitempty"`
@@ -25,7 +25,14 @@ func CreateVideo(video *Video) error {
 func GetVideoOrderByTime() ([]Video, error) {
 	db, _ := GetDB()
 	var videos []Video
-	err := db.Preload("Author").Order("created_at desc").Find(&videos).Error
+	// get all videos
+	err := db.Order("created_at desc").Find(&videos).Error
+	// update Author by AuthorID
+	for i, v := range videos {
+		var tempUser *User
+		tempUser, _ = GetUserById(int(v.AuthorID))
+		videos[i].Author = *tempUser
+	}
 
 	// update Id by gorm.ID and
 	for i, v := range videos {
@@ -37,7 +44,12 @@ func GetVideoOrderByTime() ([]Video, error) {
 func GetVideoById(id uint) (Video, error) {
 	db, _ := GetDB()
 	var video Video
-	err := db.Preload("Author").First(&video, id).Error
+	// get video
+	err := db.Where("id = ?", id).First(&video).Error
+	// update Author by AuthorID
+	var tempUser *User
+	tempUser, _ = GetUserById(int(video.AuthorID))
+	video.Author = *tempUser
 
 	// update Id by gorm.ID
 	video.VideoId = int64(video.ID)
