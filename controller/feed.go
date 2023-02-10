@@ -30,17 +30,15 @@ func Feed(c *gin.Context) {
 	}
 
 	token, ok1 := c.GetQuery("token")
-	if !ok1 {
+	if ok1 {
 		username, err := getUsernameFromToken(token)
-		if err != nil {
-			// token invalid
-			log.Println("token invalid")
-		}
-		user, err := model.GetUserByName(username)
-		//没查到，一切如常
 		if err == nil {
-			for i := 0; i < len(videoList); i++ {
-				videoList[i].Is_favorite = model.IsFavoriteVideo(user, &videoList[i])
+			user, err := model.GetUserByName(username)
+			//没查到，一切如常
+			if err == nil {
+				for i := 0; i < len(videoList); i++ {
+					videoList[i].Is_favorite = model.IsFavoriteVideo(user, &videoList[i])
+				}
 			}
 		}
 	}
