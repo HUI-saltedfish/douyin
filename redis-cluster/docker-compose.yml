@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+  node1:
+    image: redis
+    container_name: redis-cluster-node-1
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "./node1/redis.conf:/etc/redis.conf"
+      - "./node1/data:/data"
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
+
+  node2:
+    image: redis
+    container_name: redis-cluster-node-2
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "./node2/redis.conf:/etc/redis.conf"
+      - "./node2/data:/data"
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
+
+  node3:
+    image: redis
+    container_name: redis-cluster-node-3
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "./node3/redis.conf:/etc/redis.conf"
+      - "./node3/data:/data"
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
+
+  node4:
+    image: redis
+    container_name: redis-cluster-node-4
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "./node4/redis.conf:/etc/redis.conf"
+      - "./node4/data:/data"
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
+
+  node5:
+    image: redis
+    container_name: redis-cluster-node-5
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "./node5/redis.conf:/etc/redis.conf"
+      - "./node5/data:/data"
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
+
+  node6:
+    image: redis
+    container_name: redis-cluster-node-6
+    privileged: true
+    network_mode: "host"
+    volumes:
+      - "./node6/redis.conf:/etc/redis.conf"
+      - "./node6/data:/data"
+    command: ["redis-server", "/etc/redis.conf"]
+    restart: always
