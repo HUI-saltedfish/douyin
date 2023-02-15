@@ -175,7 +175,7 @@ func Register(c *gin.Context) {
 		})
 
 		c.JSON(http.StatusOK, UserLoginResponse{
-			Response: Response{StatusCode: 0},
+			Response: Response{StatusCode: 0, StatusMsg: "Registed!"},
 			UserId:   int64(newUser.ID),
 			Token:    tokenString,
 		})
@@ -229,7 +229,7 @@ func Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, UserLoginResponse{
-		Response: Response{StatusCode: 0},
+		Response: Response{StatusCode: 0, StatusMsg: "Login Success!"},
 		UserId:   int64(user.ID),
 		Token:    tokenString,
 	})
@@ -245,6 +245,7 @@ func UserInfo(c *gin.Context) {
 			StatusCode: 1,
 			StatusMsg:  "user_id is not valid",
 		})
+		return
 	}
 
 	user, err := model.GetUserById(int(uID))
@@ -253,10 +254,11 @@ func UserInfo(c *gin.Context) {
 			StatusCode: 1,
 			StatusMsg:  err.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusOK, UserResponse{
-		Response: Response{StatusCode: 0},
+		Response: Response{StatusCode: 0, StatusMsg: "Success Query!"},
 		User:     *user,
 	})
 }
